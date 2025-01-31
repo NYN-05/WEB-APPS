@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+  <head>
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f4; /* Light background for contrast */
+        margin: 20px;
+        color: #333; /* Darker text for better readability */
+      }
+
+      h1 {
+        text-align: center;
+        color: #4caf50; /* Green color for the heading */
+      }
+
+      .input-area {
+        display: flex;
+        justify-content: center; /* Center the input area */
+        margin-bottom: 20px;
+      }
+
+      #taskInput {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px; /* Rounded corners */
+        font-size: 16px; /* Larger font size */
+        transition: border-color 0.3s; /* Smooth transition for border color */
+      }
+
+      #taskInput:focus {
+        border-color: #4caf50; /* Change border color on focus */
+        outline: none; /* Remove default outline */
+      }
+
+      #addTask {
+        padding: 10px 20px;
+        background-color: #4caf50; /* Green */
+        color: white;
+        border: none;
+        border-radius: 4px; /* Rounded corners */
+        cursor: pointer;
+        font-size: 16px; /* Larger font size */
+        transition: background-color 0.3s; /* Smooth transition for background color */
+      }
+
+      #addTask:hover {
+        background-color: #45a049; /* Darker green on hover */
+      }
+
+      #taskList {
+        list-style: none;
+        padding: 0;
+        max-width: 600px; /* Limit the width of the task list */
+        margin: 0 auto; /* Center the task list */
+      }
+
+      #taskList li {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex; /* For delete button positioning */
+        align-items: center; /* Vertically center content */
+        background-color: white; /* White background for tasks */
+        border-radius: 4px; /* Rounded corners */
+        margin-bottom: 10px; /* Space between tasks */
+        transition: box-shadow 0.3s; /* Smooth transition for shadow */
+      }
+
+      #taskList li:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow on hover */
+      }
+
+      #taskList li span {
+        flex-grow: 1; /* Takes up available space */
+        font-size: 16px; /* Larger font size */
+      }
+
+      #taskList li button {
+        background-color: #f44336; /* Red */
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+        margin-left: 10px; /* Space between text and button */
+        border-radius: 4px; /* Rounded corners */
+        transition: background-color 0.3s; /* Smooth transition for background color */
+      }
+
+      #taskList li button:hover {
+        background-color: #d32f2f; /* Darker red on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>To-Do List</h1>
+    <div class="input-area">
+      <input type="text" id="taskInput" placeholder="Enter a task" />
+      <button id="addTask">Add Task</button>
+    </div>
+    <ul id="taskList"></ul>
+    <script src="script.js"></script>
+  </body>
+  <script>
+    const taskInput = document.getElementById("taskInput")
+    const addTaskButton = document.getElementById("addTask")
+    const taskList = document.getElementById("taskList")
+
+    addTaskButton.addEventListener("click", () => {
+      const taskText = taskInput.value.trim() // Remove extra whitespace
+
+      if (taskText !== "") {
+        // Don't add empty tasks
+        const listItem = document.createElement("li")
+        const taskSpan = document.createElement("span") // For the task text
+        taskSpan.textContent = taskText
+        const deleteButton = document.createElement("button")
+        deleteButton.textContent = "Delete"
+
+        listItem.appendChild(taskSpan)
+        listItem.appendChild(deleteButton)
+        taskList.appendChild(listItem)
+
+        taskInput.value = "" // Clear the input field
+
+        deleteButton.addEventListener("click", () => {
+          taskList.removeChild(listItem)
+        })
+      }
+    })
+
+    taskInput.addEventListener("keyup", function (event) {
+      if (event.keyCode === 13) {
+        // Press Enter key to add task
+        addTaskButton.click()
+      }
+    })
+  </script>
+</html>
