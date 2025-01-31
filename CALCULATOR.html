@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Calculator</title>
+  <style>
+     body {
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f0f0;
+      }
+
+      #calculator {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      #display {
+        width: 100%;
+        height: 50px;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f5f5f5;
+        text-align: right;
+        font-size: 24px;
+        overflow-x: auto;
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 10px;
+      }
+
+      button {
+        width: 100%;
+        height: 50px;
+        font-size: 18px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #eee;
+      }
+
+      .operator {
+        background-color: #f0f0f0;
+        color: #333;
+      }
+
+      .equal {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      #history {
+        margin-top: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f5f5f5;
+      }
+
+      .history-item {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      #description {
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 5px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+
+      #add-description {
+        background-color: #4caf50;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+  </style>
+</head>
+<body>
+  <div id="calculator">
+    <div id="display"></div>
+    <div class="buttons">
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="operator" data-value="/">/</button>
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="operator" data-value="*">*</button>
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="operator" data-value="-">-</button>
+      <button data-value="0">0</button>
+      <button data-value=".">.</button>
+      <button class="operator" data-value="+">+</button>
+      <button class="equal" data-value="=">=</button>
+      <button data-value="C">C</button> 
+      <button data-value="Backspace">⌫</button>
+      <button data-value="MC">MC</button>
+      <button data-value="MR">MR</button>
+      <button data-value="M+">M+</button>
+      <button data-value="M-">M-</button>
+    </div>
+  </div>
+
+  <div id="history">
+    <h3>Calculation History</h3>
+    <input type="text" id="description" placeholder="Enter description (optional)">
+    <button id="add-description">Add Description</button>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+    const buttons = document.querySelectorAll("button");
+    const historyList = document.getElementById("history");
+    const descriptionInput = document.getElementById("description");
+    const addDescriptionButton = document.getElementById("add-description");
+
+    let currentInput = "";
+    let history = [];
+    let memory = 0;
+
+    function updateDisplay() {
+      display.textContent = currentInput || "0";
+    }
+
+    function updateHistory() {
+      historyList.innerHTML = "<h3>Calculation History</h3>";
+      history.forEach(item => {
+        const listItem = document.createElement("div");
+        listItem.classList.add("history-item");
+        listItem.innerHTML = `
+          <span>${item.timestamp}:</span> 
+          <span>${item.result}</span> 
+          <span>${item.description ? ` - ${item.description}` : ""}</span>
+        `;
+        historyList.appendChild(listItem);
+      });
+    }
+
+    function calculate() {
+      try {
+        if (currentInput === "") return; // No input, do nothing
+        const result = Function(`return ${currentInput}`)(); 
+        currentInput = result.toString();
+        history.push({
+          timestamp: new Date().toLocaleString(),
+          result: currentInput,
+          description: "" 
+        });
+        updateDisplay();
+        updateHistory();
+      } catch (error) {
+        display.textContent = "Error";
+        currentInput = "";
+      }
+    }
+
+    function handleMemory(action) {
+      switch (action) {
+        case "M+":
+          memory += parseFloat(currentInput) || 0;
+          break;
+        case "M-":
+          memory -= parseFloat(currentInput) || 0;
+          break;
+        case "MR":
+          currentInput = memory.toString();
+          updateDisplay();
+          break;
+        case "MC":
+          memory = 0;
+          break;
+      }
+    }
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        const value = button.getAttribute("data-value");
+
+        switch (value) {
+          case "=":
+            calculate();
+            break;
+          case "C":
+            currentInput = "";
+            updateDisplay();
+            break;
+          case "Backspace":
+            currentInput = currentInput.slice(0, -1);
+            updateDisplay();
+            break;
+          case "M+":
+          case "M-":
+          case "MR":
+          case "MC":
+            handleMemory(value);
+            break;
+          default:
+            currentInput += value;
+            updateDisplay();
+        }
+      });
+    });
+
+    // Keyboard support
+    document.addEventListener("keydown", (event) => {
+      const key = event.key;
+      if (!isNaN(key) || key === "." || 
+          key === "+" || key === "-" || 
+          key === "*" || key === "/" || 
+          key === "Enter" || key === "Backspace" || 
+          key === "Escape") {
+        if (key === "Enter") {
+          calculate();
+        } else if (key === "Backspace") {
+          currentInput = currentInput.slice(0, -1);
+        } else if (key === "Escape") {
+          currentInput = "";
+        } else {
+          currentInput += key;
+        }
+        updateDisplay();
+      }
+    });
+
+    addDescriptionButton.addEventListener("click", () => {
+      const description = descriptionInput.value.trim();
+      if (history.length > 0) {
+        history[history.length - 1].description = description;
+        updateHistory();
+      }
+      descriptionInput.value = "";
+    });
+  </script>
+</body>
+</html>

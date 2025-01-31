@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aesthetic Calendar with Clock</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(to right, #e1eec3, #f05053);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        color: #333;
+      }
+
+      .calendar-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        padding: 30px;
+        backdrop-filter: blur(5px);
+        max-width: 90%; /* Responsive width */
+        width: 400px; /* Default width */
+      }
+
+      .month-year {
+        text-align: center;
+        font-size: 1.6em;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #444;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+      }
+
+      .controls button {
+        padding: 10px 20px;
+        margin: 0 15px;
+        border: none;
+        background-color: #663399;
+        color: #fff;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition:
+          background-color 0.3s,
+          transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .controls button:hover {
+        background-color: #552288;
+        transform: scale(1.05);
+      }
+
+      .calendar {
+        width: 100%; /* Full width for responsiveness */
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      .calendar th,
+      .calendar td {
+        padding: 12px;
+        text-align: center;
+        font-size: 1em;
+        border: none;
+      }
+
+      .calendar th {
+        background-color: transparent;
+        color: #555;
+        font-weight: 600;
+        padding-bottom: 15px;
+      }
+
+      .calendar td {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 6px;
+        margin: 2px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        cursor: pointer; /* Indicate that cells are clickable */
+      }
+
+      .calendar td.today {
+        background-color: #9933cc;
+        color: #fff;
+        font-weight: 600;
+      }
+
+      .calendar td.other-month {
+        color: #aaa;
+      }
+
+      .calendar tr {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      .calendar tr:last-child {
+        border-bottom: none;
+      }
+
+      .clock {
+        text-align: center;
+        font-size: 2em;
+        font-weight: 600;
+        margin-top: 20px;
+        color: #555;
+        width: 100%;
+        padding: 15px 0; /* Increased padding */
+        box-sizing: border-box;
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.7
+        ); /* Semi-transparent white background */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        backdrop-filter: blur(3px); /* Slight blur effect */
+      }
+
+      .clock span {
+        padding: 0 8px; /* Add some horizontal padding */
+        color: #444;
+      }
+
+      .clock .colon {
+        color: #777; /* Lighter color for colons */
+        font-weight: bold;
+      }
+
+      .stopwatch {
+        text-align: center;
+        font-size: 1.8em; /* Slightly smaller font for stopwatch */
+        margin-top: 20px;
+        color: #555;
+        width: 100%;
+        padding: 15px 0; /* Increased padding */
+        box-sizing: border-box;
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.7
+        ); /* Semi-transparent white background */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        backdrop-filter: blur(3px); /* Slight blur effect */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .stopwatch-display {
+        font-family: monospace; /* Use monospace font for consistent digit width */
+        padding: 5px 10px; /* Add padding to display area */
+        border-radius: 5px;
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .stopwatch-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .stopwatch button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .stopwatch button.start {
+        background-color: #28a745; /* Green for start */
+        color: #fff;
+      }
+
+      .stopwatch button.start:hover {
+        background-color: #218838;
+      }
+
+      .stopwatch button.stop {
+        background-color: #dc3545; /* Red for stop */
+        color: #fff;
+      }
+
+      .stopwatch button.stop:hover {
+        background-color: #c12a36;
+      }
+
+      .stopwatch button.reset {
+        background-color: #ffc107; /* Yellow for reset */
+        color: #000;
+      }
+
+      .stopwatch button.reset:hover {
+        background-color: #e0a800;
+      }
+
+      /* Media Queries for Responsiveness */
+      @media (max-width: 600px) {
+        .calendar-container {
+          padding: 20px;
+        }
+
+        .month-year {
+          font-size: 1.4em;
+        }
+
+        .controls button {
+          padding: 8px 16px;
+          margin: 0 10px;
+        }
+
+        .calendar td {
+          padding: 8px;
+        }
+
+        .clock {
+          font-size: 1.5em;
+        }
+
+        .stopwatch {
+          font-size: 1.5em;
+        }
+      }
+
+      .menu {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px; /* Space below the menu */
+      }
+
+      .menu button {
+        padding: 10px 20px;
+        margin: 0 10px;
+        border: none;
+        background-color: #663399;
+        color: #fff;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition:
+          background-color 0.3s,
+          transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .menu button:hover {
+        background-color: #552288;
+        transform: scale(1.05);
+      }
+      .content-area > div {
+        /* Hide all content divs initially */
+        display: none;
+      }
+
+      .content-area > div.active {
+        /* Show only the active content */
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="calendar-container">
+      <div class="menu">
+        <button onclick="showContent('calendar')">Calendar</button>
+        <button onclick="showContent('clock')">Clock</button>
+        <button onclick="showContent('stopwatch')">Stopwatch</button>
+      </div>
+
+      <div class="content-area">
+        <div id="calendar" class="active">
+          <div class="month-year" id="monthYear"></div>
+          <div class="controls">
+            <button onclick="prevMonth()">Previous</button>
+            <button onclick="nextMonth()">Next</button>
+          </div>
+          <table class="calendar" id="calendarTable">
+            <thead>
+              <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="clock">
+          <div class="clock" id="digitalClock"></div>
+        </div>
+
+        <div id="stopwatch">
+          <div class="stopwatch" aria-label="Stopwatch">
+            <div class="stopwatch-display" id="stopwatchDisplay">00:00:00</div>
+            <div class="stopwatch-buttons">
+              <button class="start" onclick="startStopwatch()">Start</button>
+              <button class="stop" onclick="stopStopwatch()">Stop</button>
+              <button class="reset" onclick="resetStopwatch()">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentDate = new Date()
+      let currentMonth = currentDate.getMonth()
+      let currentYear = currentDate.getFullYear()
+      let selectedDate = currentDate.getDate() // Track selected date
+      let startTime = 0 // Stopwatch start time
+      let running = false // Stopwatch running state
+      let timerInterval // Stopwatch interval
+
+      function generateCalendar(month, year) {
+        const calendarBody = document.querySelector("#calendar tbody")
+        const monthYearDisplay = document.getElementById("monthYear")
+
+        calendarBody.innerHTML = ""
+
+        const firstDay = new Date(year, month, 1)
+        const lastDay = new Date(year, month + 1, 0)
+
+        const daysInMonth = lastDay.getDate()
+        const startDay = firstDay.getDay()
+
+        const monthName = new Intl.DateTimeFormat("en-US", {
+          month: "long",
+        }).format(firstDay)
+        monthYearDisplay.textContent = `${monthName} ${year}`
+
+        let dayCounter = 1
+        let row = calendarBody.insertRow()
+
+        for (let i = 0; i < startDay; i++) {
+          let cell = row.insertCell()
+          cell.classList.add("other-month")
+        }
+
+        while (dayCounter <= daysInMonth) {
+          let cell = row.insertCell()
+          cell.textContent = dayCounter
+          cell.setAttribute("tabindex", "0") // Make cells focusable
+          cell.setAttribute("role", "button") // Indicate that cells are interactive
+          cell.setAttribute("aria-label", `Select ${dayCounter}`)
+
+          cell.onclick = () => {
+            selectedDate = dayCounter // Update selected date
+            alert(`You selected ${dayCounter} ${monthName} ${year}`)
+            highlightSelectedDate() // Highlight the selected date
+          }
+
+          if (
+            dayCounter === currentDate.getDate() &&
+            month === currentDate.getMonth() &&
+            year === currentDate.getFullYear()
+          ) {
+            cell.classList.add("today")
+          }
+
+          dayCounter++
+          if (row.cells.length === 7 && dayCounter <= daysInMonth) {
+            row = calendarBody.insertRow()
+          }
+        }
+        while (row.cells.length < 7) {
+          let cell = row.insertCell()
+          cell.classList.add("other-month")
+        }
+      }
+
+      function highlightSelectedDate() {
+        const cells = document.querySelectorAll("#calendar tbody td")
+        cells.forEach((cell) => {
+          cell.classList.remove("selected") // Remove previous selection
+          if (parseInt(cell.textContent) === selectedDate) {
+            cell.classList.add("selected") // Highlight the selected date
+          }
+        })
+      }
+
+      function prevMonth() {
+        currentMonth--
+        if (currentMonth < 0) {
+          currentMonth = 11
+          currentYear--
+        }
+        generateCalendar(currentMonth, currentYear)
+      }
+
+      function nextMonth() {
+        currentMonth++
+        if (currentMonth > 11) {
+          currentMonth = 0
+          currentYear++
+        }
+        generateCalendar(currentMonth, currentYear)
+      }
+
+      generateCalendar(currentMonth, currentYear)
+
+      function updateClock() {
+        const now = new Date()
+        let hours = now.getHours()
+        const minutes = now.getMinutes().toString().padStart(2, "0")
+        const seconds = now.getSeconds().toString().padStart(2, "0")
+        const ampm = hours >= 12 ? "PM" : "AM"
+        hours = hours % 12 || 12
+
+        const timeString = `<span>${hours}</span><span class="colon">:</span><span>${minutes}</span><span class="colon">:</span><span>${seconds}</span> <span>${ampm}</span>`
+        document.getElementById("digitalClock").innerHTML = timeString
+      }
+
+      setInterval(updateClock, 1000)
+      updateClock()
+
+      function startStopwatch() {
+        if (!running) {
+          startTime = Date.now() - startTime // Adjust start time
+          timerInterval = setInterval(updateStopwatch, 10)
+          running = true
+        }
+      }
+
+      function stopStopwatch() {
+        if (running) {
+          clearInterval(timerInterval)
+          running = false
+        }
+      }
+
+      function resetStopwatch() {
+        clearInterval(timerInterval)
+        running = false
+        startTime = 0
+        updateStopwatch()
+      }
+
+      function updateStopwatch() {
+        if (running) {
+          const currentTime = Date.now()
+          const elapsedTime = currentTime - startTime
+
+          const minutes = Math.floor(elapsedTime / (1000 * 60))
+            .toString()
+            .padStart(2, "0")
+          const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000)
+            .toString()
+            .padStart(2, "0")
+          const milliseconds = Math.floor((elapsedTime % 1000) / 10)
+            .toString()
+            .padStart(2, "0")
+
+          document.getElementById("stopwatchDisplay").textContent =
+            `${minutes}:${seconds}:${milliseconds}`
+        }
+      }
+
+      function showContent(contentType) {
+        // Hide all content divs
+        const contentDivs = document.querySelectorAll(".content-area > div")
+        contentDivs.forEach((div) => div.classList.remove("active"))
+
+        // Show the selected content
+        const selectedDiv = document.getElementById(contentType)
+        selectedDiv.classList.add("active")
+
+        if (contentType === "calendar") {
+          generateCalendar(currentMonth, currentYear) // Refresh Calendar
+        } else if (contentType === "clock") {
+          updateClock() // Refresh Clock
+        }
+      }
+
+      // Show calendar initially
+      showContent("calendar")
+    </script>
+  </body>
+</html>
