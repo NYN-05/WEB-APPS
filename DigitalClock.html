@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <title>Digital Clock</title>
+    <style>
+      body {
+        background-color: #1a1a1a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: "Roboto Mono", monospace; /* Modern monospace font */
+        color: #a0c0a0; /* Slightly greenish text */
+        overflow: hidden;
+        perspective: 800px; /* For 3D effect */
+      }
+
+      .clock {
+        background: radial-gradient(
+          circle,
+          #282c34,
+          #181b20
+        ); /* Darker, more interesting gradient */
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        position: relative;
+        transform-style: preserve-3d; /* For 3D rotation */
+        transition: transform 0.5s ease; /* Smooth rotation transition */
+      }
+
+      .clock:hover {
+        transform: rotateY(5deg); /* Subtle 3D rotation on hover */
+      }
+
+      .clock::before {
+        /* Subtle inner glow */
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: calc(100% - 4px);
+        height: calc(100% - 4px);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 18px;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      #digitalClock {
+        font-size: 3.5em; /* Slightly larger */
+        text-align: center;
+        letter-spacing: 0.04em;
+        text-shadow: 0 0 10px rgba(160, 192, 160, 0.2);
+        white-space: nowrap;
+        transition:
+          font-size 0.3s ease,
+          color 0.3s ease; /* Smooth font size and color transitions */
+      }
+
+      #digitalClock:hover {
+        color: #c0e0c0; /* Slightly brighter on hover */
+      }
+
+      @media (max-width: 500px) {
+        #digitalClock {
+          font-size: 2.5em;
+        }
+      }
+
+      /* Optional: Add a subtle animation */
+      @keyframes glow {
+        0% {
+          text-shadow: 0 0 5px rgba(160, 192, 160, 0.1);
+        }
+        50% {
+          text-shadow: 0 0 10px rgba(160, 192, 160, 0.3);
+        }
+        100% {
+          text-shadow: 0 0 5px rgba(160, 192, 160, 0.1);
+        }
+      }
+
+      #digitalClock {
+        animation: glow 2s ease-in-out infinite; /* Apply the glow animation */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="clock">
+      <div id="digitalClock"></div>
+    </div>
+
+    <script>
+      function updateClock() {
+        const now = new Date()
+        const timeString = now.toLocaleTimeString()
+        document.getElementById("digitalClock").textContent = timeString
+      }
+
+      updateClock()
+      setInterval(updateClock, 1000)
+    </script>
+  </body>
+</html>
