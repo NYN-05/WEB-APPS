@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz Game</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      .question {
+        margin: 20px 0;
+      }
+
+      label {
+        display: block;
+        margin: 10px 0;
+      }
+
+      button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #218838;
+      }
+
+      #result {
+        margin-top: 20px;
+        font-size: 1.2em;
+        text-align: center;
+      }
+
+      #progress,
+      #timer {
+        text-align: center;
+        margin: 10px 0;
+      }
+
+      .progress-bar {
+        width: 100%;
+        background-color: #f4f4f4;
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .progress-bar-fill {
+        display: block;
+        height: 20px;
+        background-color: #28a745;
+        width: 0;
+      }
+
+      .explanation {
+        margin-top: 10px;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Quiz Game</h1>
+      <div id="progress">
+        <div class="progress-bar"><span class="progress-bar-fill"></span></div>
+      </div>
+      <div id="timer"></div>
+      <div id="quiz"></div>
+      <button id="submit">Submit Answer</button><br />
+      <button id="restart" style="display: none">Restart Quiz</button>
+      <div id="result"></div>
+    </div>
+    <script>
+      const quizData = [
+        {
+          question: "What is the capital of France?",
+          a: "Berlin",
+          b: "Madrid",
+          c: "Paris",
+          d: "Lisbon",
+          correct: "c",
+          explanation:
+            "The capital of France is Paris, known as the 'City of Light'.",
+        },
+        {
+          question: "Which planet is known as the Red Planet?",
+          a: "Earth",
+          b: "Mars",
+          c: "Jupiter",
+          d: "Saturn",
+          correct: "b",
+          explanation:
+            "Mars is known as the Red Planet due to its reddish appearance.",
+        },
+        {
+          question: "Who wrote 'To Kill a Mockingbird'?",
+          a: "Harper Lee",
+          b: "Mark Twain",
+          c: "F. Scott Fitzgerald",
+          d: "Ernest Hemingway",
+          correct: "a",
+          explanation: "Harper Lee is the author of 'To Kill a Mockingbird'.",
+        },
+        {
+          question: "What is the largest ocean on Earth?",
+          a: "Atlantic Ocean",
+          b: "Indian Ocean",
+          c: "Arctic Ocean",
+          d: "Pacific Ocean",
+          correct: "d",
+          explanation: "The Pacific Ocean is the largest ocean on Earth.",
+        },
+        {
+          question: "What is the smallest country in the world?",
+          a: "Monaco",
+          b: "Vatican City",
+          c: "San Marino",
+          d: "Liechtenstein",
+          correct: "b",
+          explanation: "Vatican City is the smallest country in the world.",
+        },
+      ];
+
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let timer;
+      const timerDuration = 15; // 15 seconds for each question
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      // Shuffle the quiz data
+      shuffleArray(quizData);
+      let selectedQuestions = quizData.slice(0, 5);
+
+      const quiz = document.getElementById("quiz");
+      const submitButton = document.getElementById("submit");
+      const restartButton = document.getElementById("restart");
+      const resultDisplay = document.getElementById("result");
+      const progressDisplay = document.getElementById("progress");
+      const timerDisplay = document.getElementById("timer");
+
+      function loadQuiz() {
+        const currentQuestion = selectedQuestions[currentQuestionIndex];
+        quiz.innerHTML = `
+                <div class="question">${currentQuestion.question}</div>
+                <label>
+                    <input type="radio" name="answer" value="a"> ${currentQuestion.a}
+                </label>
+                <label>
+                    <input type="radio" name="answer" value="b"> ${currentQuestion.b}
+                </label>
+                <label>
+                    <input type="radio" name="answer" value="c"> ${currentQuestion.c}
+                </label>
+                <label>
+                    <input type="radio" name="answer" value="d"> ${currentQuestion.d}
+                </label>
+            `;
+        progressDisplay.querySelector(".progress-bar-fill").style.width = `${
+          (currentQuestionIndex / selectedQuestions.length) * 100
+        }%`;
+        startTimer(timerDuration);
+      }
+
+      function startTimer(duration) {
+        let timeRemaining = duration;
+        timerDisplay.innerHTML = `Time remaining: ${timeRemaining}s`;
+        timer = setInterval(() => {
+          timeRemaining--;
+          timerDisplay.innerHTML = `Time remaining: ${timeRemaining}s`;
+          if (timeRemaining <= 0) {
+            clearInterval(timer);
+            timerDisplay.innerHTML = "Time's up!";
+            showCorrectAnswer();
+            currentQuestionIndex++;
+            if (currentQuestionIndex < selectedQuestions.length) {
+              setTimeout(loadQuiz, 2000); // Wait 2 seconds before loading the next question
+            } else {
+              setTimeout(showResults, 2000); // Wait 2 seconds before showing results
+            }
+          }
+        }, 1000);
+      }
+
+      function getSelected() {
+        const answers = document.querySelectorAll('input[name="answer"]');
+        for (const answer of answers) {
+          if (answer.checked) {
+            return answer.value;
+          }
+        }
+        return null;
+      }
+
+      function showCorrectAnswer() {
+        const currentQuestion = selectedQuestions[currentQuestionIndex];
+        document.querySelector(
+          `input[value="${currentQuestion.correct}"]`
+        ).parentElement.style.color = "green"; // Highlight correct answer
+      }
+
+      function checkAnswer() {
+        const answer = getSelected();
+        const answers = document.querySelectorAll('input[name="answer"]');
+        answers.forEach((answer) => (answer.disabled = true)); // Disable radio buttons
+        if (answer) {
+          const currentQuestion = selectedQuestions[currentQuestionIndex];
+          if (answer === currentQuestion.correct) {
+            score++;
+          }
+          currentQuestionIndex++;
+          clearInterval(timer); // Stop the timer
+          if (currentQuestionIndex < selectedQuestions.length) {
+            loadQuiz();
+          } else {
+            showResults();
+          }
+        } else {
+          alert("Please select an answer!");
+        }
+      }
+
+      function showResults() {
+        quiz.style.display = "none";
+        resultDisplay.innerHTML = `You scored ${score} out of ${selectedQuestions.length}<br><br>`;
+
+        selectedQuestions.forEach((question, index) => {
+          const userAnswer = document.querySelector(
+            `input[name="answer"]:checked`
+          );
+          const userAnswerText = userAnswer
+            ? userAnswer.parentElement.textContent.trim()
+            : "No answer";
+          const isCorrect = userAnswer && userAnswer.value === question.correct;
+
+          resultDisplay.innerHTML += `
+                    <strong>Question ${index + 1}:</strong> ${
+            question.question
+          }<br>
+                    <em>Your Answer:</em> ${userAnswerText}<br>
+                    <em>Correct Answer:</em> ${question[question.correct]}<br>
+                    <em>Explanation:</em> ${
+                      question.explanation || "No explanation available."
+                    }<br>
+                    <em style="color: ${isCorrect ? "green" : "red"};">${
+            isCorrect ? "Correct!" : "Incorrect!"
+          }</em><br><br>
+                `;
+        });
+        restartButton.style.display = "block";
+      }
+
+      submitButton.addEventListener("click", () => {
+        clearInterval(timer);
+        checkAnswer();
+      });
+
+      restartButton.addEventListener("click", () => {
+        currentQuestionIndex = 0;
+        score = 0;
+        resultDisplay.innerHTML = "";
+        quiz.style.display = "block";
+        submitButton.style.display = "block";
+        restartButton.style.display = "none"; // Hide restart button
+        shuffleArray(quizData); // Shuffle again for a new set of questions
+        selectedQuestions = quizData.slice(0, 5); // Select new questions
+        loadQuiz();
+      });
+
+      // Load the first question
+      loadQuiz();
+    </script>
+  </body>
+</html>
